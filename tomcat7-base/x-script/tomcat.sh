@@ -38,6 +38,7 @@ CATALINA_OPTS="$CATALINA_OPTS
 #=======================================================================#
 SCRIPT_PWD=$(dirname $(readlink -f $0))
 DAEMON_SCRIPT=${SCRIPT_PWD}/../x-bin/catalina.sh
+CATALINA_PID=${SCRIPT_PWD}/../run/catalina.pid
 
 #=======================================================================#
 #    函数: start()
@@ -57,6 +58,7 @@ start() {
 #    说明: 停止实例
 #=======================================================================#
 stop() {
+    arg=${1:-"NULL"}
     [ ! -e ${CATALINA_PID} ] && return 1
     pid=$(cat ${CATALINA_PID})
     [ -z ${CATALINA_PID} ] && return 1
@@ -68,8 +70,8 @@ stop() {
 
     echo "PID:${pid} 准备Kill此进程!"
     
-    [ $1 == "-f" ] && kill -9 ${pid} \
-                   || kill -15 ${pid}
+    [ $arg == "-f" ] && kill -9 ${pid} \
+                     || kill -15 ${pid}
 
     while [ -e "/proc/${pid}" ]; do
         echo -n "+"
