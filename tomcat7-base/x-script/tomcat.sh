@@ -37,7 +37,7 @@ CATALINA_OPTS="$CATALINA_OPTS
 #    说明: 公共变量
 #=======================================================================#
 SCRIPT_PWD=$(dirname $(readlink -f $0))
-DAEMON_SCRIPT=${SCRIPT_PWD}../x-bin/catalina.sh
+DAEMON_SCRIPT=${SCRIPT_PWD}/../x-bin/catalina.sh
 
 #=======================================================================#
 #    函数: start()
@@ -68,7 +68,7 @@ stop() {
 
     echo "PID:${pid} 准备Kill此进程!"
     
-    [ $1 == "-f" ] && kill -9 ${pid}
+    [ $1 == "-f" ] && kill -9 ${pid} \
                    || kill -15 ${pid}
 
     while [ -e "/proc/${pid}" ]; do

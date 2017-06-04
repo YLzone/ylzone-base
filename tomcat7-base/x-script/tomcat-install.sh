@@ -15,25 +15,49 @@
 #    说明: 格式化记录日志
 #=======================================================================#
 logger() {
-    echo "[$(date +%F_%T)] - [${FUNCNAME[1]}] - $1"
+    message=$1
+    arg=${2:-"NULL"}
+    [ $arg == "-error" ] && echo -e "\033[31m[$(date +%F_%T)] - [${FUNCNAME[1]}] - $1\033[0m" \
+                         || echo -e "\033[32m[$(date +%F_%T)] - [${FUNCNAME[1]}] - $1\033[0m"
 }
 
 #=======================================================================#
-#    说明: 依赖程序检测
-#=======================================================================#
-which git  &> /dev/null || { logger "所需程序 git 不存在,请安装后再试"; exit 1; }
-which wget &> /dev/null || { logger "所需程序 wget 不存在,请安装后再试"; exit 1; }
-
-#=======================================================================#
-#    说明: 输入检测部分
+#    说明: 公共变量
 #=======================================================================#
 SCRIPT_PWD=$(dirname $(dirname $(readlink -f $0)))
 TC_USER=
 TC_HOME=
 TC_BASE=
-TC_PACKET="/tmp/apache-tomcat-7.0.72.tar.gz"
-TC_URL="http://apache.fayea.com/tomcat/tomcat-7/v7.0.78/bin/apache-tomcat-7.0.72.tar.gz"
+TC_VERSION="apache-tomcat-7.0.78"
+TC_PACKET="/tmp/${TC_VERSION}.tar.gz"
+TC_URL="http://apache.fayea.com/tomcat/tomcat-7/v7.0.78/bin/apache-tomcat-7.0.78.tar.gz"
 
+#=======================================================================#
+#    说明: 部署环境检测
+#=======================================================================#
+# 检测所需程序
+which git  &> /dev/null || { logger "所需程序 git 不存在,请安装后再试"  -error; exit 1; }
+which wget &> /dev/null || { logger "所需程序 wget 不存在,请安装后再试" -error; exit 1; }
+
+# 检测程序包
+if [ ! -e ${TC_PACKET} ]; then
+    logger "<部署检测> 安装包不存在,准备下载 zookeeper-3.4.9.tar.gz"
+    wget ${TC_URL} -P /tmp || { logger "<解决依赖> 下载软件包失败" -error; exit 1; }
+else
+    logger "<部署检测> 安装包 ${TC_PACKET} 存在继续安装"
+fi
+
+# 检测BASE包
+if [ ! -e /tmp/ylzone-base ]; then
+    logger "<部署检测> BASE包不存在,准备下载 ylzone-base"
+    git clone https://github.com/YLzone/ylzone-base.git /tmp/ylzone-base
+else
+    logger "<部署检测> BASE包存在继续安装"
+fi
+
+#=======================================================================#
+#    说明: 输入检测部分
+#=======================================================================#
 _TC_USER_DEFAULT="tomcat"
 _TC_HOME_DEFAULT="/opt/tomcat7"
 _TC_BASE_DEFAULT="/data/tomcat"
@@ -49,7 +73,7 @@ cat <<EOF
 *******************************************
 EOF
 
-read -p "请核对如上信息是否正确 [y/n]: " result; [ -z "$result" ] && { logger "输入不能为空"; exit 1; }
+read -p "请核对如上信息是否正确 [y/n]: " result; [ -z "$result" ] && { logger "输入不能为空" -error; exit 1; }
 [ ${result} != "y" ] && exit 1
 INSTALL_BASE=$(dirname ${TC_HOME})
 
@@ -58,18 +82,6 @@ INSTALL_BASE=$(dirname ${TC_HOME})
 #=======================================================================#
 ### 1.解决依赖 ###
 
-# 检测下载安装包 
-if [ ! -e ${TC_PACKET} ]; then
-    logger "<解决依赖> 安装包不存在,准备下载 zookeeper-3.4.9.tar.gz"
-    wget ${TC_URL} -P /tmp || { logger "<解决依赖> 下载软件包失败"; exit 1; }
-else
-    logger "<解决依赖> 安装包 ${TC_PACKET} 存在继续安装"
-fi
-
-# 检测加载base包
-git clone git@try.gogs.io:yangli886/ylzone-base.git /tmp/ylzone-base
-mkdir -v ${TC_BASE}
-mv /tmp/ylzone-base/tomcat7-base /data/tomcat/.catalina-base
 
 # 检测添加运行用户
 id ${TC_USER} &>/dev/null
@@ -77,7 +89,7 @@ if [ $? = 0 ]; then
     logger "<解决依赖> 用户 ${TC_USER} 存在无需创建"
 else
     useradd -M -d ${TC_BASE} -u 8080 tomcat && logger "<解决依赖> 创建用户 ${TC_USER} 成功!" \
-                                            || { logger "<解决依赖> 创建用户 ${TC_USER} 失败"; exit 1; }
+                                            || { logger "<解决依赖> 创建用户 ${TC_USER} 失败" -error; exit 1; }
 fi
 
 ### 2.安装程序 ###
@@ -85,7 +97,7 @@ fi
 # 解压程序包
 tar xf ${TC_PACKET} -C ${INSTALL_BASE} && logger "<安装程序> ${TC_PACKET} ==> ${INSTALL_BASE} 解压成功!" \
                                        || logger "<安装程序> ${TC_PACKET} ==> ${INSTALL_BASE} 解压失败"
-result=$(ln -sv ${INSTALL_BASE}/apache-tomcat-7.0.72/ ${TC_HOME} 2>&1); logger "<安装程序> ${result}"
+result=$(ln -sv ${INSTALL_BASE}/${TC_VERSION}/ ${TC_HOME} 2>&1); logger "<安装程序> ${result}"
 
 # 整理安装目录
 rm -f  ${TC_HOME}/{LICENSE,NOTICE,RELEASE-NOTES,RUNNING.txt} &&
@@ -93,11 +105,12 @@ rm -f  ${TC_HOME}/bin/*.bat                                  &&
 rm -rf ${TC_HOME}/{logs,temp,webapps,work}                   &&
 mv ${TC_HOME}/{conf,conf.default}                            && logger "<安装程序> 整理安装目录完成"
 
+
 # 创建所需目录
 # data  : 共享数据目录,负载均衡时节点之间共享数据
 # local : 本地数据目录,负载均衡时节点本地的数据
 result=$(mkdir -v ${TC_BASE}                      2>&1); logger "<安装程序> ${result}"
-result=$(mkdir -v ${TC_BASE}/.catalina-base       2>&1); logger "<安装程序> ${result}"
+result=$(mv    -v /tmp/ylzone-base/tomcat7-base /data/tomcat/.catalina-base 2>1); logger "<安装程序> ${result}"
 result=$(mkdir -v ${TC_BASE}/.catalina-base/logs  2>&1); logger "<安装程序> ${result}"
 result=$(mkdir -v ${TC_BASE}/.catalina-base/work  2>&1); logger "<安装程序> ${result}"
 result=$(mkdir -v ${TC_BASE}/.catalina-base/temp  2>&1); logger "<安装程序> ${result}"
