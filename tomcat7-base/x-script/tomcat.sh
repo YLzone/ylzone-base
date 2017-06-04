@@ -48,7 +48,7 @@ CATALINA_PID=${SCRIPT_PWD}/../run/catalina.pid
 #=======================================================================#
 start() {
     $DAEMON_SCRIPT start
-    [ "$1" == "-p" ] && tail -0f $CATALINA_BASE/logs/catalina.out
+    [ "$1" == "-p" ] && tail -0f $SCRIPT_PWD/../logs/catalina.out
 }
 
 #=======================================================================#
