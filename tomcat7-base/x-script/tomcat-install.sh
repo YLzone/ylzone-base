@@ -110,16 +110,18 @@ mv ${TC_HOME}/{conf,conf.default}                            && logger "<安装�
 # data  : 共享数据目录,负载均衡时节点之间共享数据
 # local : 本地数据目录,负载均衡时节点本地的数据
 result=$(mkdir -v ${TC_BASE}                      2>&1); logger "<安装程序> ${result}"
-result=$(mv    -v /tmp/ylzone-base/tomcat7-base /data/tomcat/.catalina-base 2>1); logger "<安装程序> ${result}"
+result=$(mv    -v /tmp/ylzone-base/tomcat7-base /data/tomcat/.catalina-base 2>&1); logger "<安装程序> ${result}"
+result=$(mkdir -v ${TC_BASE}/.catalina-base/run   2>&1); logger "<安装程序> ${result}"
 result=$(mkdir -v ${TC_BASE}/.catalina-base/logs  2>&1); logger "<安装程序> ${result}"
 result=$(mkdir -v ${TC_BASE}/.catalina-base/work  2>&1); logger "<安装程序> ${result}"
 result=$(mkdir -v ${TC_BASE}/.catalina-base/temp  2>&1); logger "<安装程序> ${result}"
 result=$(mkdir -v ${TC_BASE}/.catalina-base/data  2>&1); logger "<安装程序> ${result}"
 result=$(mkdir -v ${TC_BASE}/.catalina-base/local 2>&1); logger "<安装程序> ${result}"
-result=$(ln -sv ${TC_BASE}/.catalina-base/webapps/ ${TC_BASE}/webapps 2>&1); logger "<安装程序> ${result}"
-result=$(ln -sv ${TC_BASE}/.catalina-base/logs/    ${TC_BASE}/logs    2>&1); logger "<安装程序> ${result}"
-result=$(ln -sv ${TC_BASE}/.catalina-base/data/    ${TC_BASE}/data    2>&1); logger "<安装程序> ${result}"
-result=$(ln -sv ${TC_BASE}/.catalina-base/local/   ${TC_BASE}/local   2>&1); logger "<安装程序> ${result}"
+result=$(ln -sv ${TC_BASE}/.catalina-base/webapps/ ${TC_BASE}/webapps 2>&1);              logger "<安装程序> ${result}"
+result=$(ln -sv ${TC_BASE}/.catalina-base/logs/    ${TC_BASE}/logs    2>&1);              logger "<安装程序> ${result}"
+result=$(ln -sv ${TC_BASE}/.catalina-base/data/    ${TC_BASE}/data    2>&1);              logger "<安装程序> ${result}"
+result=$(ln -sv ${TC_BASE}/.catalina-base/local/   ${TC_BASE}/local   2>&1);              logger "<安装程序> ${result}"
+result=$(ln -sv ${TC_BASE}/.catalina-base/x-script/tomcat.sh   ${TC_BASE}/tomcat   2>&1); logger "<安装程序> ${result}"
 
 # 修改文件权限
 chown -R root:root ${TC_HOME}                     && logger "<安装程序> 修改安装目录权限 root:root"

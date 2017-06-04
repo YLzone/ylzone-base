@@ -35,9 +35,8 @@
                resourceName="UserDatabase"/>
       </Realm>
 
-      <Host name="localhost"  appBase="../core"
-            unpackWARs="true" autoDeploy="true">
-	<Context path="" docBase="../.catalina-base/webapps/ROOT"/>
+      <Host name="localhost"  appBase="webaspp" unpackWARs="true" autoDeploy="true">
+	    <Context path="" docBase="ROOT"/>
         <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
                prefix="localhost_access_log." suffix=".txt"
                pattern="%h %l %u %t &quot;%r&quot; %s %b" />
