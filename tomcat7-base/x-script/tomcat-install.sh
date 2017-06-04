@@ -28,9 +28,9 @@ SCRIPT_PWD=$(dirname $(dirname $(readlink -f $0)))
 TC_USER=
 TC_HOME=
 TC_BASE=
-TC_VERSION="apache-tomcat-7.0.78"
-TC_PACKET="/tmp/${TC_VERSION}.tar.gz"
-TC_URL="http://apache.fayea.com/tomcat/tomcat-7/v7.0.78/bin/apache-tomcat-7.0.78.tar.gz"
+TC_PACKET_VERSION="apache-tomcat-7.0.78"
+TC_PACKET_PATH="/tmp/${TC_PACKET_VERSION}.tar.gz"
+TC_URL="http://apache.fayea.com/tomcat/tomcat-7/v7.0.78/bin/${TC_PACKET_VERSION}.tar.gz"
 
 #=======================================================================#
 #    说明: 部署环境检测
@@ -110,7 +110,7 @@ mv ${TC_HOME}/{conf,conf.default}                            && logger "<安装�
 # data  : 共享数据目录,负载均衡时节点之间共享数据
 # local : 本地数据目录,负载均衡时节点本地的数据
 result=$(mkdir -v ${TC_BASE}                      2>&1); logger "<安装程序> ${result}"
-result=$(mv    -v /tmp/ylzone-base/tomcat7-base /data/tomcat/.catalina-base 2>&1); logger "<安装程序> ${result}"
+result=$(mv    -v /tmp/ylzone-base/tomcat7-base ${TC_BASE}/.catalina-base 2>&1); logger "<安装程序> ${result}"
 result=$(mkdir -v ${TC_BASE}/.catalina-base/run   2>&1); logger "<安装程序> ${result}"
 result=$(mkdir -v ${TC_BASE}/.catalina-base/logs  2>&1); logger "<安装程序> ${result}"
 result=$(mkdir -v ${TC_BASE}/.catalina-base/work  2>&1); logger "<安装程序> ${result}"
