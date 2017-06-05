@@ -30,7 +30,7 @@ TC_HOME=
 TC_BASE=
 TC_PACKET_VERSION="apache-tomcat-7.0.78"
 TC_PACKET_PATH="/tmp/${TC_PACKET_VERSION}.tar.gz"
-TC_URL="http://apache.fayea.com/tomcat/tomcat-7/v7.0.78/bin/${TC_PACKET_VERSION}.tar.gz"
+TC_URL="http://mirror.bit.edu.cn/apache/tomcat/tomcat-7/v7.0.78/bin/${TC_PACKET_VERSION}.tar.gz"
 TC_YLZONE_BASE=/tmp/ylzone-base/tomcat7-base
 
 
@@ -138,4 +138,4 @@ result=$(ln -sv .catalina-base/x-script/tomcat.sh   ${TC_BASE}/tomcat   2>&1)   
 # 修改文件权限
 chown -R root:root ${TC_HOME}                     && logger "修改安装目录权限 root:root"
 chown -R ${TC_USER}:${TC_USER} ${TC_BASE}         && logger "修改数据目录权限 ${TC_USER}:${TC_USER}"
-chown -R root:root ${TC_BASE}/.catalina-base/conf && logger "修改配置目录权限 root:root"
+#chown -R root:root ${TC_BASE}/.catalina-base/conf && logger "修改配置目录权限 root:root"
