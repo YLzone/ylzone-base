@@ -40,15 +40,16 @@ which git  &> /dev/null || { logger "所需程序 git 不存在,请安装后再�
 which wget &> /dev/null || { logger "所需程序 wget 不存在,请安装后再试" -error; exit 1; }
 
 # 检测程序包
-if [ ! -e ${TC_PACKET} ]; then
-    logger "<部署检测> 安装包不存在,准备下载 zookeeper-3.4.9.tar.gz"
+if [ ! -e ${TC_PACKET_PATH} ]; then
+    logger "<部署检测> 安装包不存在,准备下载 ${TC_PACKET_VERSION}.tar.gz"
     wget ${TC_URL} -P /tmp || { logger "<解决依赖> 下载软件包失败" -error; exit 1; }
 else
     logger "<部署检测> 安装包 ${TC_PACKET} 存在继续安装"
 fi
 
 # 检测BASE包
-if [ ! -e /tmp/ylzone-base ]; then
+if [ ! -e /tmp/ylzone-base/tomcat7-base ]; then
+    [ -e /tmp/ylzone-base ] && rm -rf /tmp/ylzone-base
     logger "<部署检测> BASE包不存在,准备下载 ylzone-base"
     git clone https://github.com/YLzone/ylzone-base.git /tmp/ylzone-base
 else
@@ -95,9 +96,9 @@ fi
 ### 2.安装程序 ###
 
 # 解压程序包
-tar xf ${TC_PACKET} -C ${INSTALL_BASE} && logger "<安装程序> ${TC_PACKET} ==> ${INSTALL_BASE} 解压成功!" \
-                                       || logger "<安装程序> ${TC_PACKET} ==> ${INSTALL_BASE} 解压失败"
-result=$(ln -sv ${INSTALL_BASE}/${TC_VERSION}/ ${TC_HOME} 2>&1); logger "<安装程序> ${result}"
+tar xf ${TC_PACKET_PATH} -C ${INSTALL_BASE} &&   logger "<安装程序> ${TC_PACKET_PATH} ==> ${INSTALL_BASE} 解压成功!" \
+                                            || { logger "<安装程序> ${TC_PACKET_PATH} ==> ${INSTALL_BASE} 解压失败" -error; exit 1; }
+result=$(ln -sv ${INSTALL_BASE}/${TC_PACKET_VERSION}/ ${TC_HOME} 2>&1); logger "<安装程序> ${result}"
 
 # 整理安装目录
 rm -f  ${TC_HOME}/{LICENSE,NOTICE,RELEASE-NOTES,RUNNING.txt} &&
@@ -117,11 +118,11 @@ result=$(mkdir -v ${TC_BASE}/.catalina-base/work  2>&1); logger "<安装程序> 
 result=$(mkdir -v ${TC_BASE}/.catalina-base/temp  2>&1); logger "<安装程序> ${result}"
 result=$(mkdir -v ${TC_BASE}/.catalina-base/data  2>&1); logger "<安装程序> ${result}"
 result=$(mkdir -v ${TC_BASE}/.catalina-base/local 2>&1); logger "<安装程序> ${result}"
-result=$(ln -sv ${TC_BASE}/.catalina-base/webapps/ ${TC_BASE}/webapps 2>&1);              logger "<安装程序> ${result}"
-result=$(ln -sv ${TC_BASE}/.catalina-base/logs/    ${TC_BASE}/logs    2>&1);              logger "<安装程序> ${result}"
-result=$(ln -sv ${TC_BASE}/.catalina-base/data/    ${TC_BASE}/data    2>&1);              logger "<安装程序> ${result}"
-result=$(ln -sv ${TC_BASE}/.catalina-base/local/   ${TC_BASE}/local   2>&1);              logger "<安装程序> ${result}"
-result=$(ln -sv ${TC_BASE}/.catalina-base/x-script/tomcat.sh   ${TC_BASE}/tomcat   2>&1); logger "<安装程序> ${result}"
+result=$(ln -sv .catalina-base/webapps/ ${TC_BASE}/webapps 2>&1);              logger "<安装程序> ${result}"
+result=$(ln -sv .catalina-base/logs/    ${TC_BASE}/logs    2>&1);              logger "<安装程序> ${result}"
+result=$(ln -sv .catalina-base/data/    ${TC_BASE}/data    2>&1);              logger "<安装程序> ${result}"
+result=$(ln -sv .catalina-base/local/   ${TC_BASE}/local   2>&1);              logger "<安装程序> ${result}"
+result=$(ln -sv .catalina-base/x-script/tomcat.sh   ${TC_BASE}/tomcat   2>&1); logger "<安装程序> ${result}"
 
 # 修改文件权限
 chown -R root:root ${TC_HOME}                     && logger "<安装程序> 修改安装目录权限 root:root"
